@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Human Capabilities - Reaction test</title>
+</head>
+<style>
+    .vl {
+        border-bottom: 6px solid black;
+        width: 100%;
+        top: 50%;
+    }
+
+</style>
+<body>
+<script type="text/javascript">
+    var experimentActive = false; var testActive = false;
+    var times = new Array();
+    var lastTimeColorChanged;
+
+
+    function rectangle (){
+        var c=document.getElementById("myCanvas");
+        var ctx=c.getContext("2d");
+        ctx.beginPath();
+        ctx.fillStyle="#FF0000";
+        ctx.rect(100,30,50,50);
+        ctx.stroke();
+    }
+
+
+    function startExperiment() {
+
+        experimentActive = true;
+        document.getElementById("time").innerHTML = "";
+        document.getElementById("count").innerHTML = "";
+        document.getElementById("mean").innerHTML = "";
+        document.getElementById("sd").innerHTML = "";
+        document.getElementById("instruction").innerHTML = "Press SPACE when color changes! Press 'a' for results!";
+        rectangle();
+        startTest();
+    }
+
+    function startTest() {
+        timeInSeconds = Math.random() * 4 + 2; // 2 - 6s
+        window.setTimeout("showStimulus()", timeInSeconds * 1000);
+    }
+
+    function showStimulus() {
+        testActive = true;
+        changeTextColor("red");
+    }
+
+    function stopTest() {
+        var currTime = new Date().getTime();
+        var deltaTime = currTime - lastTimeColorChanged;
+        times.push(deltaTime);
+        document.getElementById("time").innerHTML = deltaTime + "ms";
+        testActive = false;
+        startTest();
+    }
+
+    function stopExperiment() {
+        window.setTimeout("showStimulus()", 0);
+        testActive = false;
+        var meanDeltaTime = 0.0;
+        for (var i = 0; i < times.length; ++i) {
+            meanDeltaTime += times[i]; }
+        meanDeltaTime = Math.round(meanDeltaTime / times.length);
+        var standardDerivation = 0.0;
+        for (var i = 0; i < times.length; ++i) {
+            var diff = (times[i] - meanDeltaTime);
+            standardDerivation += diff * diff; }
+        standardDerivation =  Math.round(Math.sqrt(standardDerivation / times.length));
+        document.getElementById("count").innerHTML = "Count: " + times.length;
+        document.getElementById("mean").innerHTML = "Mean: " + meanDeltaTime + "ms";
+        document.getElementById("sd").innerHTML = "SD: " + standardDerivation + "ms";
+        document.getElementById("instruction").innerHTML = "Press SPACE to start!";
+        times = [];
+        experimentActive = false;
+    }
+
+
+    document.onkeydown = onKey;
+    function onKey(e) { if (e == null) {
+        e = window.event;
+    }
+        switch (e.which || e.charCode || e.keyCode) {
+            case 32:
+                // space
+                if (!experimentActive) {
+                    startExperiment(); }
+                else {
+                    if (testActive) {
+                        stopTest();
+                    }
+                }
+                break;
+            case 65: // a
+                if (experimentActive) {
+                    stopExperiment();
+                }
+                break;
+            case 66:
+            // b
+            // here you can extend... alert("pressed the b key"); break;
+        }
+    }
+</script>
+<h1>
+    <p id="text">User Study</p>
+</h1>
+<h1 id="instruction">Press SPACE to start!</h1>
+<div class="vl"></div>
+<canvas id="myCanvas"></canvas>
+<p>
+<p id="time"></p>
+<p id="count"></p>
+<p id="mean"></p>
+<p id="sd"></p>
+</body>
+</html>
